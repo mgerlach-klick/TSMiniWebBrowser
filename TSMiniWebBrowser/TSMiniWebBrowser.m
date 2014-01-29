@@ -450,6 +450,11 @@ enum actionSheetButtonIndex {
     [webView loadRequest: [NSURLRequest requestWithURL: url]];
 }
 
+- (void)scrollingEnabled:(BOOL)enabled
+{
+    webView.scrollView.scrollEnabled = enabled;
+}
+
 #pragma mark - UIWebViewDelegate
 
 - (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType {
