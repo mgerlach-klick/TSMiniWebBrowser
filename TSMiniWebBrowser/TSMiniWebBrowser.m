@@ -105,10 +105,11 @@ enum actionSheetButtonIndex {
     UIBarButtonItem *buttonDone = [[UIBarButtonItem alloc] initWithTitle:modalDismissButtonTitle style:UIBarButtonItemStyleBordered target:self action:@selector(dismissController)];
     
     UINavigationItem *titleBar = [[UINavigationItem alloc] initWithTitle:@""];
+	buttonDone.tintColor = [UIColor whiteColor];
     titleBar.leftBarButtonItem = buttonDone;
     
     CGFloat width = self.view.frame.size.width;
-    navigationBarModal = [[UINavigationBar alloc] initWithFrame:CGRectMake(0, kTitleBarStart, width, kTitleBarHeight)];
+    navigationBarModal = [[UINavigationBar alloc] initWithFrame:CGRectMake(0, 0, width, 64)];
     //navigationBar.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleBottomMargin;
     navigationBarModal.autoresizingMask = UIViewAutoresizingFlexibleWidth;
     navigationBarModal.barStyle = barStyle;
@@ -181,17 +182,18 @@ enum actionSheetButtonIndex {
 -(void) initWebView {
     CGSize viewSize = self.view.frame.size;
     if (mode == TSMiniWebBrowserModeModal) {
-        webView = [[UIWebView alloc] initWithFrame:CGRectMake(0, kTitleBarStart + kTitleBarHeight, viewSize.width, viewSize.height - kToolBarHeight - (kTitleBarStart + kTitleBarHeight))];
+        webView = [[UIWebView alloc] initWithFrame:CGRectMake(0, kTitleBarStart + kTitleBarHeight, viewSize.width, viewSize.height - (_showToolbar?kToolBarHeight:0) - (kTitleBarStart + kTitleBarHeight))];
     } else if(mode == TSMiniWebBrowserModeNavigation) {
-        webView = [[UIWebView alloc] initWithFrame:CGRectMake(0, 0, viewSize.width, viewSize.height-kToolBarHeight)];
+        webView = [[UIWebView alloc] initWithFrame:CGRectMake(0, 0, viewSize.width, viewSize.height-(_showToolbar?kToolBarHeight:0))];
     } else if(mode == TSMiniWebBrowserModeTabBar) {
         self.view.backgroundColor = [UIColor redColor];
-        webView = [[UIWebView alloc] initWithFrame:CGRectMake(0, kToolBarHeight-1, viewSize.width, viewSize.height-kToolBarHeight+1)];
+        webView = [[UIWebView alloc] initWithFrame:CGRectMake(0, kToolBarHeight-1, viewSize.width, viewSize.height-(_showToolbar?kToolBarHeight:0)+1)];
     }
     webView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     [self.view addSubview:webView];
     
     webView.scalesPageToFit = YES;
+	webView.multipleTouchEnabled = YES;
     
     webView.delegate = self;
     
@@ -214,6 +216,7 @@ enum actionSheetButtonIndex {
         showPageTitleOnTitleBar = YES;
         showReloadButton = YES;
         showActionButton = YES;
+		_showToolbar = YES;
         modalDismissButtonTitle = NSLocalizedString(@"Done", nil);
         forcedTitleBarText = nil;
         barStyle = UIBarStyleDefault;
@@ -245,7 +248,8 @@ enum actionSheetButtonIndex {
     }
     
     // Init tool bar
-    [self initToolBar];
+	if (_showToolbar)
+		[self initToolBar];
     
     // Init web view
     [self initWebView];
