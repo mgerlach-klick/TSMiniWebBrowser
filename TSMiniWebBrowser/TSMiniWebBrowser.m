@@ -83,7 +83,15 @@ enum actionSheetButtonIndex {
     if ( webView.loading ) {
         [webView stopLoading];
     }
-    [self dismissModalViewControllerAnimated:YES];
+
+	// status bar update 
+	__weak UIViewController *parent = self.presentingViewController;
+	[self dismissViewControllerAnimated:YES completion:^{
+		[UIView animateWithDuration:0.3 animations:^{
+			[parent setNeedsStatusBarAppearanceUpdate];
+		}];
+	}];
+
     
     // Notify the delegate
     if (self.delegate != NULL && [self.delegate respondsToSelector:@selector(tsMiniWebBrowserDidDismiss)]) {
@@ -301,6 +309,8 @@ enum actionSheetButtonIndex {
     // Restore Status bar style
     [[UIApplication sharedApplication] setStatusBarStyle:originalBarStyle animated:NO];
     
+
+	
     // Stop loading
     [webView stopLoading];
 }
@@ -462,6 +472,14 @@ enum actionSheetButtonIndex {
 #pragma mark - UIWebViewDelegate
 
 - (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType {
+	
+	if (self.delegate && [self.delegate respondsToSelector:@selector(webView:shouldStartLoadWithRequest:navigationType:)]) {
+		BOOL shouldGoOn = [self.delegate webView:webView shouldStartLoadWithRequest:request navigationType:navigationType];
+		
+		if (!shouldGoOn)
+			return NO;
+	}
+	
     if ([[request.URL absoluteString] hasPrefix:@"sms:"]) {
         [[UIApplication sharedApplication] openURL:request.URL];
         return NO;
